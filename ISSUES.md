@@ -36,6 +36,7 @@ false-negative feedback and you won't know it.
 # Phase 0 — Foundations
 
 ### LP-01 — Scaffold Next.js app with strict TypeScript
+
 **Est:** 0.5d · **Labels:** `setup`
 
 Create the App Router project with the tooling that prevents a class of bugs from ever
@@ -43,6 +44,7 @@ appearing. Strict mode from commit one — retrofitting it later means fixing hu
 errors at once.
 
 **Acceptance criteria**
+
 - [ ] Next.js App Router project at repo root, TypeScript `strict: true`
 - [ ] `noUncheckedIndexedAccess` and `noImplicitOverride` enabled
 - [ ] ESLint + Prettier configured, single `npm run lint` passes clean
@@ -54,13 +56,15 @@ errors at once.
 ---
 
 ### LP-02 — Tailwind, shadcn/ui, and the design token contract
+
 **Est:** 1d · **Labels:** `setup`, `design`
 
-Set up styling *and* the token layer templates will consume (§8.5). The token contract
+Set up styling _and_ the token layer templates will consume (§8.5). The token contract
 is the part that matters — doing it now costs an hour, retrofitting it after five
 templates exist costs days.
 
 **Acceptance criteria**
+
 - [ ] Tailwind configured; shadcn/ui initialized with at least Button, Input, Card,
       Dialog, Tabs installed
 - [ ] Semantic CSS variables defined (`--surface`, `--surface-raised`, `--text`,
@@ -76,12 +80,14 @@ templates exist costs days.
 ---
 
 ### LP-03 — Firebase projects and SDK wiring
+
 **Est:** 0.5d · **Labels:** `setup`, `infra`
 
 Two Firebase projects (dev, prod) and both SDKs wired with a clear boundary: client SDK
 for the dashboard, Admin SDK for server actions (§4).
 
 **Acceptance criteria**
+
 - [ ] Separate `leadport-dev` and `leadport-prod` Firebase projects
 - [ ] Client SDK initialized as a singleton, safe under Fast Refresh
 - [ ] Admin SDK initialized server-only; module throws if imported client-side
@@ -92,12 +98,14 @@ for the dashboard, Admin SDK for server actions (§4).
 ---
 
 ### LP-04 — Firestore security rules + test harness
+
 **Est:** 1d · **Labels:** `security`, `infra`
 
 Rules per §6, with tests. This is the one file where a plausible-looking mistake exposes
 every agent's leads — the harness exists so every later change is verified, not assumed.
 
 **Acceptance criteria**
+
 - [ ] Rules implement §6 exactly for `users`, `slugs`, `profiles`, `profiles/*/blocks`,
       `publishedPages`, `leads`, `stats`
 - [ ] `@firebase/rules-unit-testing` harness runs against the emulator
@@ -112,9 +120,11 @@ every agent's leads — the harness exists so every later change is verified, no
 ---
 
 ### LP-05 — CI pipeline
+
 **Est:** 0.5d · **Labels:** `infra`
 
 **Acceptance criteria**
+
 - [ ] GitHub Actions runs on every PR: typecheck, lint, unit tests, rules tests
 - [ ] Firebase emulator starts in CI for the rules tests
 - [ ] Build must succeed for the PR to be mergeable
@@ -124,9 +134,11 @@ every agent's leads — the harness exists so every later change is verified, no
 ---
 
 ### LP-06 — Vercel deployment and environments
+
 **Est:** 0.5d · **Labels:** `infra`
 
 **Acceptance criteria**
+
 - [ ] Project connected to Vercel; `main` auto-deploys to production
 - [ ] PRs get preview deployments
 - [ ] Preview and development environments point at `leadport-dev` Firebase
@@ -137,11 +149,13 @@ every agent's leads — the harness exists so every later change is verified, no
 ---
 
 ### LP-07 — Error tracking
+
 **Est:** 0.5d · **Labels:** `infra`
 
 Solo means nobody else notices breakage (§12).
 
 **Acceptance criteria**
+
 - [ ] Sentry (or equivalent) capturing client, server-action, and route-handler errors
 - [ ] Source maps uploaded so stack traces are readable
 - [ ] Environment tag distinguishes preview from production
@@ -153,12 +167,14 @@ Solo means nobody else notices breakage (§12).
 # Phase 1 — Auth and slug
 
 ### LP-08 — Google sign-in
+
 **Est:** 1d · **Labels:** `auth`
 
 Google only for v0 (§3) — email/password means a reset flow, verification email, and
 account recovery support you'd carry alone.
 
 **Acceptance criteria**
+
 - [ ] "Continue with Google" completes sign-in and lands on the dashboard
 - [ ] Auth state persists across reload and across tabs
 - [ ] Sign-out clears state and redirects to the marketing page
@@ -168,9 +184,11 @@ account recovery support you'd carry alone.
 ---
 
 ### LP-09 — Protected dashboard routes
+
 **Est:** 0.5d · **Labels:** `auth`
 
 **Acceptance criteria**
+
 - [ ] Unauthenticated access to `/dashboard/*` redirects to sign-in
 - [ ] Post-sign-in, user returns to the route they originally requested
 - [ ] Loading state shown while auth resolves — no flash of the sign-in page for a
@@ -180,9 +198,11 @@ account recovery support you'd carry alone.
 ---
 
 ### LP-10 — User document bootstrap
+
 **Est:** 0.5d · **Labels:** `auth`
 
 **Acceptance criteria**
+
 - [ ] First sign-in creates `users/{uid}` with email, displayName, `plan: "free"`,
       `createdAt`
 - [ ] Operation is idempotent — repeated sign-ins never duplicate or overwrite
@@ -192,12 +212,14 @@ account recovery support you'd carry alone.
 ---
 
 ### LP-11 — Slug reservation
+
 **Est:** 1d · **Labels:** `auth`, `security`
 
 Uniqueness via a transaction on `slugs/{slug}` (§5). The blocklist matters — an agent
 claiming `/api` or `/dashboard` breaks routing.
 
 **Acceptance criteria**
+
 - [ ] Slug claimed via Firestore transaction; concurrent claims cannot both succeed
 - [ ] Format enforced: lowercase, 3–30 chars, `a-z0-9-`, no leading/trailing hyphen
 - [ ] Input normalized to lowercase before check and write
@@ -214,12 +236,14 @@ claiming `/api` or `/dashboard` breaks routing.
 # Phase 2 — Template #1
 
 ### LP-12 — Template token contract
+
 **Est:** 0.5d · **Labels:** `design`
 
 Define how a template is expressed as data before writing one, so templates 2–5 are
 config rather than forks (§8.2).
 
 **Acceptance criteria**
+
 - [ ] TypeScript type for a template: id, name, token set, font pairing, allowed
       accent ids, photo treatment
 - [ ] Accent options are a fixed list per template, each with a pre-computed
@@ -232,6 +256,7 @@ config rather than forks (§8.2).
 ---
 
 ### LP-13 — Template #1 (the good one)
+
 **Est:** 3d · **Labels:** `design`, `public`
 
 The v0 template. Per §8.1 this is load-bearing: v0 exists to learn whether agents want
@@ -241,6 +266,7 @@ Aesthetic target per §8.3 — professional, photographic, restrained. Closer to
 brokerage's brand than to an influencer link page.
 
 **Acceptance criteria**
+
 - [ ] Renders: cover, avatar, name, title, brokerage, bio, block stack, footer
 - [ ] Mobile-first; verified on a real phone at 375px, not just a resized browser
 - [ ] Body text ≥ 17px, tap targets ≥ 48px (§8.3)
@@ -258,11 +284,13 @@ brokerage's brand than to an influencer link page.
 ---
 
 ### LP-14 — Compliance footer
+
 **Est:** 0.5d · **Labels:** `compliance`, `public`
 
 Implements §10.1 and the EHO half of §10.2. Cheap to build, disqualifying to omit.
 
 **Acceptance criteria**
+
 - [ ] Renders agent name, each license as `{STATE} #{number}`, brokerage name,
       brokerage phone
 - [ ] Equal Housing Opportunity logo rendered, with accessible alt text
@@ -276,11 +304,13 @@ Implements §10.1 and the EHO half of §10.2. Cheap to build, disqualifying to o
 ---
 
 ### LP-15 — Public block components
+
 **Est:** 1d · **Labels:** `public`, `design`
 
 Render-side components for the three v0 block types. Editor comes later (LP-20).
 
 **Acceptance criteria**
+
 - [ ] **Link block:** title, optional subtitle, optional icon; whole card is one tap
       target; external links get `rel="noopener noreferrer"`
 - [ ] **Call/text block:** `tel:` and `sms:` deep links, US number formatting; verified
@@ -296,9 +326,11 @@ Render-side components for the three v0 block types. Editor comes later (LP-20).
 # Phase 3 — Editor
 
 ### LP-16 — Dashboard shell
+
 **Est:** 0.5d · **Labels:** `editor`
 
 **Acceptance criteria**
+
 - [ ] Persistent nav: Edit page, Leads, Settings
 - [ ] Fully usable at 375px (§8.4 — agents edit from their phone between showings)
 - [ ] Current section clearly indicated
@@ -307,9 +339,11 @@ Render-side components for the three v0 block types. Editor comes later (LP-20).
 ---
 
 ### LP-17 — Profile identity form
+
 **Est:** 1d · **Labels:** `editor`
 
 **Acceptance criteria**
+
 - [ ] Fields: name, title, bio, phone, email
 - [ ] Zod validation with inline, human-readable errors
 - [ ] Bio character limit shown with a live counter
@@ -320,16 +354,18 @@ Render-side components for the three v0 block types. Editor comes later (LP-20).
 ---
 
 ### LP-18 — Licenses and brokerage form
+
 **Est:** 1d · **Labels:** `editor`, `compliance`
 
 The data behind LP-14. Multi-state support is required, not a nice-to-have (§5).
 
 **Acceptance criteria**
+
 - [ ] Add, edit, and remove multiple license entries (state, number, type)
 - [ ] State is a dropdown of the 50 states + DC, not free text
 - [ ] Brokerage sub-form: name, phone, address, optional license number, optional logo
 - [ ] License number and brokerage name are **required to publish** (enforced in LP-23)
-- [ ] Inline explanation of *why* these are required, linking to the concept, not a
+- [ ] Inline explanation of _why_ these are required, linking to the concept, not a
       bare "required" error
 - [ ] At least one license must remain; removing the last one is blocked
 - [ ] Brokerage logo upload reuses LP-19
@@ -337,11 +373,13 @@ The data behind LP-14. Multi-state support is required, not a nice-to-have (§5)
 ---
 
 ### LP-19 — Image upload, crop, and optimization
+
 **Est:** 1.5d · **Labels:** `editor`, `infra`
 
 Agents upload 4MB photos straight from their phone (§12). Handle it at the boundary.
 
 **Acceptance criteria**
+
 - [ ] Upload to `users/{uid}/...` in Firebase Storage
 - [ ] Client-side crop with the aspect ratio enforced per image role (avatar square,
       cover wide)
@@ -357,9 +395,11 @@ Agents upload 4MB photos straight from their phone (§12). Handle it at the boun
 ---
 
 ### LP-20 — Block CRUD and reordering
+
 **Est:** 1.5d · **Labels:** `editor`
 
 **Acceptance criteria**
+
 - [ ] Add a block from a type picker (link, call/text, form)
 - [ ] Edit each type's config in a form appropriate to that type
 - [ ] Delete with confirmation
@@ -373,13 +413,15 @@ Agents upload 4MB photos straight from their phone (§12). Handle it at the boun
 ---
 
 ### LP-21 — Live preview
+
 **Est:** 1.5d · **Labels:** `editor`, `design`
 
 **Acceptance criteria**
+
 - [ ] Desktop: preview beside the editor, in a phone-width frame
 - [ ] Mobile: Edit/Preview tab switch (§8.4)
 - [ ] Reflects draft state within ~300ms of a change
-- [ ] Uses the *same* template components as the public page — a divergent preview is
+- [ ] Uses the _same_ template components as the public page — a divergent preview is
       worse than none
 - [ ] Preview shows the compliance footer so the agent sees what publishes
 - [ ] Preview scroll position survives edits
@@ -387,9 +429,11 @@ Agents upload 4MB photos straight from their phone (§12). Handle it at the boun
 ---
 
 ### LP-22 — Draft autosave
+
 **Est:** 1d · **Labels:** `editor`
 
 **Acceptance criteria**
+
 - [ ] Draft changes persist automatically, debounced ~1s
 - [ ] Clear status: Saving / Saved / Save failed
 - [ ] Failed save retries and surfaces a message if it keeps failing
@@ -403,12 +447,14 @@ Agents upload 4MB photos straight from their phone (§12). Handle it at the boun
 # Phase 4 — Public page
 
 ### LP-23 — `publish()` server action
+
 **Est:** 1.5d · **Labels:** `public`, `security`
 
 Compiles draft → `publishedPages/{slug}` and revalidates (§4). The gate where
 compliance becomes enforceable.
 
 **Acceptance criteria**
+
 - [ ] Server action reads draft profile + blocks, writes one compiled
       `publishedPages/{slug}` document
 - [ ] Hidden blocks are excluded from the compiled output
@@ -426,9 +472,11 @@ compliance becomes enforceable.
 ---
 
 ### LP-24 — Public profile route with ISR
+
 **Est:** 1d · **Labels:** `public`, `seo`
 
 **Acceptance criteria**
+
 - [ ] `/[slug]` renders from the single compiled document — one Firestore read (§4)
 - [ ] `generateStaticParams` pre-renders known published slugs
 - [ ] Cache tagged by slug so `revalidateTag` invalidates precisely
@@ -440,9 +488,11 @@ compliance becomes enforceable.
 ---
 
 ### LP-25 — SEO metadata
+
 **Est:** 0.5d · **Labels:** `seo`
 
 **Acceptance criteria**
+
 - [ ] `generateMetadata` emits title, description, canonical, OG, and Twitter tags
 - [ ] Agent-editable overrides; sensible generated defaults when blank
 - [ ] Defaults incorporate name, title, and brokerage
@@ -453,9 +503,11 @@ compliance becomes enforceable.
 ---
 
 ### LP-26 — Structured data
+
 **Est:** 0.5d · **Labels:** `seo`
 
 **Acceptance criteria**
+
 - [ ] JSON-LD `RealEstateAgent` (or `Person`) with name, image, telephone, url
 - [ ] `worksFor` → brokerage `Organization`
 - [ ] `areaServed` populated when the agent has provided it
@@ -466,11 +518,13 @@ compliance becomes enforceable.
 ---
 
 ### LP-27 — OG image generation
+
 **Est:** 1d · **Labels:** `seo`, `design`
 
 US agents share via iMessage and Instagram DM; this card is the first impression (§9).
 
 **Acceptance criteria**
+
 - [ ] `next/og` route renders headshot, name, title, brokerage on the template accent
 - [ ] 1200×630, correct content-type
 - [ ] Fonts load correctly in the OG runtime (a common silent failure)
@@ -482,9 +536,11 @@ US agents share via iMessage and Instagram DM; this card is the first impression
 ---
 
 ### LP-28 — Sitemap and robots
+
 **Est:** 0.5d · **Labels:** `seo`
 
 **Acceptance criteria**
+
 - [ ] `sitemap.ts` lists all published, non-`noindex` profile URLs with `lastModified`
 - [ ] `robots.ts` allows public routes, disallows `/dashboard` and `/api`
 - [ ] Sitemap referenced from robots.txt
@@ -496,9 +552,11 @@ US agents share via iMessage and Instagram DM; this card is the first impression
 # Phase 5 — Lead capture
 
 ### LP-29 — Lead form block
+
 **Est:** 1d · **Labels:** `leads`, `public`
 
 **Acceptance criteria**
+
 - [ ] Configurable heading, description, and button label
 - [ ] Configurable fields — name, email, phone, message — each toggleable and
       individually required/optional
@@ -513,11 +571,13 @@ US agents share via iMessage and Instagram DM; this card is the first impression
 ---
 
 ### LP-30 — TCPA consent capture
+
 **Est:** 0.5d · **Labels:** `leads`, `compliance`
 
 Implements §10.3. The stored record is the entire point.
 
 **Acceptance criteria**
+
 - [ ] Consent checkbox appears whenever the form collects a phone number
 - [ ] **Unchecked by default**, and separate from the submit action
 - [ ] Plain-language text names who will contact them and by what means
@@ -531,9 +591,11 @@ Implements §10.3. The stored record is the entire point.
 ---
 
 ### LP-31 — `submitLead()` server action
+
 **Est:** 1d · **Labels:** `leads`, `security`
 
 **Acceptance criteria**
+
 - [ ] Server action validates with Zod and writes via Admin SDK — never a client write
       (§6)
 - [ ] `ownerUid` resolved server-side from the slug, never trusted from the request
@@ -548,11 +610,13 @@ Implements §10.3. The stored record is the entire point.
 ---
 
 ### LP-32 — Abuse protection
+
 **Est:** 1d · **Labels:** `security`, `leads`
 
 Public unauthenticated forms get found and hammered (§6).
 
 **Acceptance criteria**
+
 - [ ] Firebase App Check with reCAPTCHA enforced on the lead endpoint
 - [ ] App Check debug token configured so local dev still works
 - [ ] Rate limit per IP and per profile (e.g. 5/min, 30/hr) with a sane error
@@ -563,11 +627,13 @@ Public unauthenticated forms get found and hammered (§6).
 ---
 
 ### LP-33 — Instant lead notification (email)
+
 **Est:** 1d · **Labels:** `leads`
 
 Speed-to-lead is the product (§12). Email only in v0 — see the SMS note below.
 
 **Acceptance criteria**
+
 - [ ] Email to the agent immediately on lead creation
 - [ ] Sent via `waitUntil()` so the visitor never waits on the mail API (§4)
 - [ ] Wrapped in `try/catch` — a send failure never fails the submission
@@ -586,12 +652,14 @@ Speed-to-lead is the product (§12). Email only in v0 — see the SMS note below
 ---
 
 ### LP-34 — Minimal leads list
+
 **Est:** 0.5d · **Labels:** `leads`, `editor`
 
 Not the full inbox (that's v1). Just enough that a lead is never lost when a
 notification is dropped (§4).
 
 **Acceptance criteria**
+
 - [ ] `/dashboard/leads` lists the signed-in agent's leads, newest first
 - [ ] Shows name, phone, email, message, source block, timestamp, consent state
 - [ ] Owner sees only their own leads (enforced by rules, verified by test)
@@ -602,12 +670,14 @@ notification is dropped (§4).
 ---
 
 ### LP-35 — v0 checkpoint: agent interviews
+
 **Est:** ~1 week elapsed, low effort · **Labels:** `epic`
 
 Not a code issue, and the most valuable item in this document (§3, §13). Everything in
 v1 is a guess until this is done.
 
 **Acceptance criteria**
+
 - [ ] 5–10 practicing US agents have a real published page, not a demo walkthrough
 - [ ] Time-to-first-published-page measured for each (§8.4 target: under 10 minutes)
 - [ ] Asked explicitly about the §10.7 buyer-agreement block — build only if it lands
@@ -618,9 +688,10 @@ v1 is a guess until this is done.
 
 ---
 
-# v1 — epics *(expand after LP-35)*
+# v1 — epics _(expand after LP-35)_
 
 ### EPIC-A — Listing blocks and detail pages
+
 **Labels:** `epic` · §3, §9
 
 Listing CRUD with photo carousel, price, beds/baths/sqft, status badge; indexable
@@ -634,6 +705,7 @@ listings in the sitemap · status badge (Active / Under Contract / Sold).
 ---
 
 ### EPIC-B — Fair Housing language linter
+
 **Labels:** `epic`, `compliance` · §10.2
 
 Flags steering language in listing descriptions. Warn and explain, never auto-block.
@@ -646,6 +718,7 @@ the agent types · agent can dismiss and proceed · flags stored on the listing 
 ---
 
 ### EPIC-C — Full leads inbox
+
 **Labels:** `epic` · §3
 
 Upgrade of LP-34: status workflow, filtering, search, CSV export, notes.
@@ -653,6 +726,7 @@ Upgrade of LP-34: status workflow, filtering, search, CSV export, notes.
 ---
 
 ### EPIC-D — Templates 2–5 and theming
+
 **Labels:** `epic`, `design` · §8.2
 
 Additional templates as token sets, curated accent picker, template switcher that
@@ -661,6 +735,7 @@ preserves content. Every accent × surface pair must pass AA automatically (LP-1
 ---
 
 ### EPIC-E — Analytics
+
 **Labels:** `epic` · §5, §12
 
 `/api/track` endpoint, `FieldValue.increment()` on daily buckets, dashboard showing
@@ -669,6 +744,7 @@ views, per-block clicks, leads, and conversion rate. The renewal mechanic.
 ---
 
 ### EPIC-F — vCard and QR
+
 **Labels:** `epic` · §12
 
 "Save my contact" vCard download; QR code for yard signs, open houses, business cards.
@@ -676,6 +752,7 @@ views, per-block clicks, leads, and conversion rate. The renewal mechanic.
 ---
 
 ### EPIC-G — Accessibility pass (WCAG 2.1 AA)
+
 **Labels:** `epic`, `compliance` · §10.4
 
 Audit and fix across templates and dashboard. Fix once, every generated page inherits
@@ -686,6 +763,7 @@ it — a structural advantage worth marketing.
 # v2 — epics
 
 ### EPIC-H — Billing
+
 **Labels:** `epic` · §3
 
 Stripe Checkout + customer portal, Free/Pro gating enforced in both rules and UI.
@@ -694,6 +772,7 @@ Price against Zillow spend, not Linktree (§2).
 ---
 
 ### EPIC-I — Lead routing and integrations
+
 **Labels:** `epic` · §12
 
 Outbound webhook, Zapier, Follow Up Boss push. A lead that dies in your inbox is
@@ -702,6 +781,7 @@ worthless.
 ---
 
 ### EPIC-J — Privacy and hardening
+
 **Labels:** `epic`, `compliance` · §10.5
 
 Privacy policy, data export, deletion, backups, performance budget enforcement in CI.

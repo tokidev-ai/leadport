@@ -5,9 +5,10 @@ rank, load fast on mobile, look genuinely premium, and **capture leads** instead
 forwarding traffic away.
 
 **Constraints this plan is built around:**
+
 - **Market: United States.** Drives real requirements — state license display, Fair
   Housing, TCPA consent, ADA/WCAG. See §10; it's not boilerplate.
-- **Team: one developer + Claude.** Every decision optimizes for *your* time and *your*
+- **Team: one developer + Claude.** Every decision optimizes for _your_ time and _your_
   ops surface, not what a 5-person team would build.
 - Ship something real to agents in ~3 weeks, not ~14.
 
@@ -21,17 +22,17 @@ forwarding traffic away.
 
 **Next.js (App Router) + Firebase.** Firebase stays as your backend — Auth, Firestore,
 Storage. Server-side logic lives in Next.js server actions rather than Cloud Functions
-(§4), so React replaces the rendering layer *and* absorbs the application layer.
+(§4), so React replaces the rendering layer _and_ absorbs the application layer.
 
-Angular *can* do SEO fine (`@angular/ssr` is real SSR with hydration). But four things
+Angular _can_ do SEO fine (`@angular/ssr` is real SSR with hydration). But four things
 this product depends on are first-class in Next.js and hand-built in Angular:
 
-| Need | Next.js | Angular |
-|---|---|---|
-| Public pages static-fast but instantly updatable | ISR (`revalidateTag` on publish) | No ISR equivalent — SSR per request, or rebuild |
-| Property photos (heaviest asset, your LCP risk) | `next/image` — server-side AVIF/WebP, srcset | `NgOptimizedImage` hints only, no transcoding |
-| Share previews for iMessage/IG | `next/og` — generated per agent | Custom service + headless renderer |
-| Custom domains later | Middleware rewrite, ~15 lines | Reverse proxy you maintain |
+| Need                                             | Next.js                                      | Angular                                         |
+| ------------------------------------------------ | -------------------------------------------- | ----------------------------------------------- |
+| Public pages static-fast but instantly updatable | ISR (`revalidateTag` on publish)             | No ISR equivalent — SSR per request, or rebuild |
+| Property photos (heaviest asset, your LCP risk)  | `next/image` — server-side AVIF/WebP, srcset | `NgOptimizedImage` hints only, no transcoding   |
+| Share previews for iMessage/IG                   | `next/og` — generated per agent              | Custom service + headless renderer              |
+| Custom domains later                             | Middleware rewrite, ~15 lines                | Reverse proxy you maintain                      |
 
 **Solo, this stops being close.** "Unless your team is Angular-fluent" doesn't apply
 when Claude writes most of the code — pick the ecosystem with the most conventions and
@@ -48,7 +49,7 @@ config — and infra config has no leverage when you're alone.
 
 ## 2. Positioning
 
-The name is *LeadPort*. Leads are the product; links are the delivery mechanism.
+The name is _LeadPort_. Leads are the product; links are the delivery mechanism.
 
 1. **Lead capture inline.** Linktree's model sends traffic away. An agent needs the
    phone number.
@@ -57,7 +58,7 @@ The name is *LeadPort*. Leads are the product; links are the delivery mechanism.
 3. **Proof of ROI.** Per-link clicks, per-form conversion. The renewal mechanic.
 
 **The US competitive frame.** Your buyer already pays Zillow Premier Agent,
-Realtor.com, or a CRM like Follow Up Boss — often $300–1500/mo. Those are *rented*
+Realtor.com, or a CRM like Follow Up Boss — often $300–1500/mo. Those are _rented_
 leads: stop paying and they stop coming, and you never owned the relationship. Your
 pitch is **owned leads** — traffic the agent already generates from their Instagram
 bio, yard signs, and business cards, captured instead of leaking to Zillow's contact
@@ -73,7 +74,8 @@ Anything in §3 not serving one of the three points above is a candidate for cut
 
 ## 3. Scope — three releases, hard cuts
 
-### v0 — "does anyone want this?" *(the only deadline that matters)*
+### v0 — "does anyone want this?" _(the only deadline that matters)_
+
 - **Google auth only.** No email/password — that's a reset flow, a verification email,
   and an account recovery burden you'd carry alone.
 - Slug reservation (`leadport.com/rodrigo-torrico`) + reserved-word blocklist
@@ -81,7 +83,7 @@ Anything in §3 not serving one of the three points above is a candidate for cut
 - **Compliance footer (§10): license number(s) + brokerage + EHO logo.** An afternoon
   of work, and without it serious agents can't use the product at all.
 - **Three block types: link · call/text · lead form**
-- **One template — but a genuinely good one (§8).** Not one theme *for now*; one
+- **One template — but a genuinely good one (§8).** Not one theme _for now_; one
   template you'd be proud to show. See §8.1 for why this is load-bearing.
 - Public page: ISR + full SEO + structured data + OG image
 - Lead form → Firestore + **instant** email/SMS to the agent (speed-to-lead is the
@@ -92,16 +94,19 @@ Anything in §3 not serving one of the three points above is a candidate for cut
 do. This checkpoint is the single most valuable thing in this plan.
 
 ### v1 — MVP
+
 Listing blocks + listing detail pages · **Fair Housing language check (§10.2)** ·
 leads inbox (list, mark contacted, CSV) · **3–5 templates + constrained theming
 (§8.2)** · analytics counters · vCard "save my contact" · QR code · drag-to-reorder ·
 WCAG 2.1 AA pass
 
 ### v2 — revenue
+
 Stripe Checkout + portal · Free/Pro gating · outbound webhook + Zapier · CRM push
 (Follow Up Boss first — widest adoption among independent agents)
 
 ### Deferred indefinitely — team-shaped
+
 **Custom domains** (DNS tickets are a support product, not a feature) · native CRM
 integrations beyond webhook/FUB · brokerage/team tier · i18n · A/B testing ·
 **MLS/IDX import (§10.6)** · native app
@@ -141,22 +146,22 @@ integrations beyond webhook/FUB · brokerage/team tier · i18n · A/B testing ·
 ```
 
 **Key call #1 — draft/published split.** The editor writes a draft tree. The
-`publish()` server action *compiles* the page into one `publishedPages/{slug}`
+`publish()` server action _compiles_ the page into one `publishedPages/{slug}`
 document, then calls `revalidateTag(slug)`.
 
 - Public render = **one** Firestore read, not `1 + N` for blocks
-- With ISR that read happens per *publish*, not per visitor — costs stay flat
+- With ISR that read happens per _publish_, not per visitor — costs stay flat
 - Half-edited pages can't go live; rollback is trivial
 
 **Key call #2 — no hand-written Cloud Functions.** Once Next.js runs on Vercel you
 already have server-side execution with the Admin SDK:
 
-| Plausible Function | What it should be | Why |
-|---|---|---|
-| `compilePublish` | `publish()` server action | Fires on a button click — a request, not an event |
-| `stripeWebhook` | `/api/webhooks/stripe` route handler | Stripe only needs a URL |
-| `aggregateStats` | *nothing* | `FieldValue.increment()` on the daily bucket **is** the aggregation |
-| `notifyLead` | inside `submitLead()` | Already server-side (see caveat) |
+| Plausible Function | What it should be                    | Why                                                                 |
+| ------------------ | ------------------------------------ | ------------------------------------------------------------------- |
+| `compilePublish`   | `publish()` server action            | Fires on a button click — a request, not an event                   |
+| `stripeWebhook`    | `/api/webhooks/stripe` route handler | Stripe only needs a URL                                             |
+| `aggregateStats`   | _nothing_                            | `FieldValue.increment()` on the daily bucket **is** the aggregation |
+| `notifyLead`       | inside `submitLead()`                | Already server-side (see caveat)                                    |
 
 Firestore triggers exist to catch writes that bypass your server. Here both writes
 that matter go through server actions, so there's nothing to intercept. Skipping them
@@ -223,6 +228,7 @@ stats/{profileId}/daily/{YYYYMMDD}
 ```
 
 Get right now because they're painful later:
+
 - **`licenses` is an array.** US agents are routinely licensed in multiple states
   (DC/MD/VA, NY/NJ, KC on the MO/KS line). A single string is a migration waiting.
 - **Brokerage is an object, not a string.** Several states require its phone and
@@ -260,6 +266,7 @@ match /leads/{leadId} {
 ```
 
 Non-negotiable:
+
 - Lead writes go through a server action, never a client write.
 - **App Check + reCAPTCHA on the lead endpoint from day one.** Public unauthenticated
   forms get found and hammered.
@@ -273,12 +280,13 @@ bug is a breach with regulatory exposure, not a bug.
 
 ## 7. Working with Claude on this
 
-**Delegate freely:** CRUD scaffolding · security rules *and their tests* ·
+**Delegate freely:** CRUD scaffolding · security rules _and their tests_ ·
 `schema.org` + metadata · Tailwind components from a spec · Zod schemas and validation
 · migration and seed scripts · CSV export · sitemap/robots · the Fair Housing term
 linter (§10.2)
 
 **Verify yourself, every time:**
+
 - **Security rules.** Read every line, run the tests.
 - **Anything touching money** — Stripe webhooks, plan gating, idempotency.
 - **Everything in §10.** Claude can draft consent language and assemble the checklist;
@@ -286,13 +294,14 @@ linter (§10.2)
   TCPA has been actively litigated — treat any specific claim, including mine, as a
   starting point to verify.
 - **Visual judgment (§8).** Claude writes good component code from a clear spec but
-  can't see the result. *You* look at every screen on a real phone.
+  can't see the result. _You_ look at every screen on a real phone.
 - **Product cuts.** What to build is your call.
 
 **Weakest here:** production bugs you can't reproduce, DNS/deploy debugging, real spam
 patterns, and what US agents will actually pay for.
 
 **Practices that pay for themselves solo:**
+
 - Run `/init` once there's code — a `CLAUDE.md` keeps future sessions consistent.
 - Keep this `PLAN.md` current. It's how a fresh session reloads context in six months.
 - Firebase **emulator suite** — lets Claude run and test rules and server actions.
@@ -302,23 +311,23 @@ patterns, and what US agents will actually pay for.
 
 ## 8. Design & UX
 
-Design isn't polish on this product — for a link-in-bio tool it substantially *is* the
+Design isn't polish on this product — for a link-in-bio tool it substantially _is_ the
 product. Agents choose it to look credible in front of clients.
 
 ### 8.1 Two surfaces with opposite goals
 
-|  | Public agent page | Dashboard / editor |
-|---|---|---|
-| Must be | **Beautiful** | **Obvious** |
-| Audience | The agent's clients | The agent, once a month |
-| Judged on | Does this agent look professional? | How fast can I publish? |
-| Design effort | **~80%** | **~20%** |
-| Failure mode | Looks cheap → agent won't share it | Confusing → they never publish |
+|               | Public agent page                  | Dashboard / editor             |
+| ------------- | ---------------------------------- | ------------------------------ |
+| Must be       | **Beautiful**                      | **Obvious**                    |
+| Audience      | The agent's clients                | The agent, once a month        |
+| Judged on     | Does this agent look professional? | How fast can I publish?        |
+| Design effort | **~80%**                           | **~20%**                       |
+| Failure mode  | Looks cheap → agent won't share it | Confusing → they never publish |
 
 Conflating these is the common mistake. The public page deserves real craft; the
 dashboard deserves ruthless step-removal and nothing fancier.
 
-**Why v0 needs one *genuinely good* template, not a placeholder.** v0's entire purpose
+**Why v0 needs one _genuinely good_ template, not a placeholder.** v0's entire purpose
 is learning whether agents want this. If you show them something ugly, you learn about
 your design, not about demand — you'll get false negatives and won't know it. One
 excellent template beats five mediocre ones for that conversation, and it's less work.
@@ -330,12 +339,13 @@ a billboard for your product.** Give them a color picker and font dropdown and y
 get purple-on-orange Comic Sans pages carrying your name.
 
 Constrain it:
+
 - **Pick a template** (3–5 by v1) — full layouts, professionally composed
 - **Pick an accent** from a curated set per template, each pre-validated for contrast
 - **Upload a photo, type your text.** That's the whole surface.
 
 Squarespace beat Wix on exactly this. It also makes WCAG AA contrast (§10.4)
-*structural* rather than something you validate and reject — no user input can produce
+_structural_ rather than something you validate and reject — no user input can produce
 a failing combination, so there's no error state to design. And storing `templateId` +
 `accentId` (§5) means improving a template silently upgrades every page already live.
 
@@ -445,6 +455,7 @@ Most of this is cheap to build and expensive to omit. It's also the clearest wed
 against Linktree, which cannot ship any of it.
 
 ### 10.1 License and brokerage display — **v0, blocking**
+
 Most states require licensees to include their **license number** and their
 **brokerage's name** in advertising; many require the brokerage displayed as
 prominently as the agent. Some require brokerage phone/address, and several regulate
@@ -458,10 +469,11 @@ number(s) + state, brokerage name, brokerage phone, EHO logo — which satisfies
 common denominator. Add per-state variation only when agents ask.
 
 Why it's blocking: brokerages have compliance staff who review agent advertising. A
-page missing these puts the *agent's* license at risk. Not a weaker product to them —
+page missing these puts the _agent's_ license at risk. Not a weaker product to them —
 an unusable one.
 
 ### 10.2 Fair Housing — **v0 footer, v1 linter**
+
 - **Equal Housing Opportunity logo** in the footer. Non-disableable.
 - **Fair Housing language check on listing descriptions (v1).** Flag terms referencing
   protected classes or steering — "perfect for a young family", "safe neighborhood",
@@ -474,17 +486,20 @@ an unusable one.
   housing content to different audiences is a landmine — stay out.
 
 ### 10.3 TCPA consent — **v0**
+
 If a form collects a phone number and the agent will call or text:
+
 - Unchecked-by-default checkbox, separate from the submit action
 - Plain-language text naming who will contact them and how
 - Store **exact text + timestamp + IP + user agent** with the lead (§5)
 
 Store the record even if unsure it's required — one Firestore field, and the only
 thing that helps if a claim arrives. TCPA rules around lead-gen consent have been
-through significant rulemaking *and* litigation recently; have your attorney confirm
+through significant rulemaking _and_ litigation recently; have your attorney confirm
 current state rather than trusting any summary, including this one.
 
 ### 10.4 Accessibility (ADA / WCAG 2.1 AA) — **v1**
+
 Real estate sites are a recurring target of US ADA web accessibility claims. Since you
 generate thousands of agent pages from a handful of templates, **you fix it once and
 every page inherits it** — a real structural advantage individual agents on Wix don't
@@ -493,12 +508,14 @@ the agent), visible focus states, and contrast guaranteed by §8.2's constrained
 palettes rather than validated after the fact.
 
 ### 10.5 Privacy — **v1/v2**
+
 Privacy policy, data export, deletion. CCPA/CPRA plus the growing patchwork of state
 privacy laws — most share a common core (notice, access, deletion, opt-out of sale).
 Build to that core, not per-state branches. You're a **processor** for the agent's
 leads and a **controller** for agent account data; your ToS should say so.
 
 ### 10.6 MLS / IDX — **not now, possibly not ever solo**
+
 Auto-importing listings sounds obvious and is the biggest trap here. Every MLS has its
 own participation agreement, display and attribution rules, and approval process;
 access is per-MLS even where RESO standardizes the API. Nationwide coverage means
@@ -506,6 +523,7 @@ hundreds of individual agreements. **Manual listing entry for v1.** Revisit only
 revenue and a lawyer.
 
 ### 10.7 Post-NAR-settlement opportunity — validate at the v0 checkpoint
+
 Since the 2024 NAR settlement changes, US buyer's agents generally need a **signed
 written buyer agreement before touring homes**. That's new friction in every agent's
 workflow, and a "review & sign my buyer agreement" block on a page they already send
@@ -513,6 +531,7 @@ to every prospect is a plausibly strong fit. Ask about it during your v0 intervi
 before building — if it lands, it's a sharper wedge than anything on the v1 list.
 
 ### 10.8 Your liability posture
+
 The licensee is responsible for their own advertising compliance, not the platform.
 Your ToS should say so clearly. But **make it easy to be right** — required fields,
 sensible defaults, the linter — and say so in your marketing. "Built for compliance"
@@ -525,28 +544,28 @@ is a real reason an agent picks you over Linktree.
 Estimates assume Claude writing most code. Two columns because they're very different
 projects:
 
-| Phase | Work | Full-time | Nights (~12h/wk) |
-|---|---|---|---|
-| **0. Foundations** | Next.js + TS strict, Tailwind + shadcn/ui, **design tokens (§8.5)**, Firebase dev/prod, emulators, Sentry, CI | 4 days | 1.5 wks |
-| **1. Auth + slug** | Google auth, protected routes, user bootstrap, slug reservation + blocklist | 2–3 days | 1 wk |
-| **2. Template #1** | One excellent public template (§8.1–8.3): layout, type, palette, photo treatment, compliance footer slot | 3–4 days | 1.5 wks |
-| **3. Editor (thin)** | Profile + brokerage/license fields, image upload + crop, link / call-text / form blocks, live preview (§8.4) | 5 days | 2 wks |
-| **4. Public page** | `publish()` server action, ISR route, compliance footer (§10.1–10.2), all of §9 | 4 days | 1.5 wks |
-| **5. Lead capture** | `submitLead()` + App Check + rate limit, TCPA consent (§10.3), instant notify | 3 days | 1 wk |
-| | ⏸ **v0 — show it to 5–10 agents** (ask about §10.7) | **~3.5 wks** | **~8 wks** |
-| **6. Listings** | Listing CRUD, carousel, detail pages, structured data | 1 wk | 2.5 wks |
-| **7. Fair Housing linter** | Term list, inline warnings, explanations (§10.2) | 2 days | 0.5 wk |
-| **8. Leads inbox** | Table, status, CSV export | 3 days | 1 wk |
-| **9. Templates 2–5** | Additional templates + accent sets, template switcher (§8.2) | 1 wk | 2.5 wks |
-| **10. Analytics** | `/api/track`, counter aggregation, simple dashboard | 3 days | 1 wk |
-| **11. vCard + QR** | Contact download, QR generation | 1–2 days | 0.5 wk |
-| **12. A11y pass** | WCAG 2.1 AA audit + fixes (§10.4) | 3 days | 1 wk |
-| | **v1 — MVP** | **~8 wks** | **~17 wks** |
-| **13. Billing** | Stripe Checkout + portal, plan gating | 4 days | 1.5 wks |
-| **14. Hardening** | Privacy policy, export/delete, legal pages, backups, perf budget | 4 days | 1.5 wks |
-| | **v2 — revenue** | **~9.5 wks** | **~20 wks** |
+| Phase                      | Work                                                                                                          | Full-time    | Nights (~12h/wk) |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------ | ---------------- |
+| **0. Foundations**         | Next.js + TS strict, Tailwind + shadcn/ui, **design tokens (§8.5)**, Firebase dev/prod, emulators, Sentry, CI | 4 days       | 1.5 wks          |
+| **1. Auth + slug**         | Google auth, protected routes, user bootstrap, slug reservation + blocklist                                   | 2–3 days     | 1 wk             |
+| **2. Template #1**         | One excellent public template (§8.1–8.3): layout, type, palette, photo treatment, compliance footer slot      | 3–4 days     | 1.5 wks          |
+| **3. Editor (thin)**       | Profile + brokerage/license fields, image upload + crop, link / call-text / form blocks, live preview (§8.4)  | 5 days       | 2 wks            |
+| **4. Public page**         | `publish()` server action, ISR route, compliance footer (§10.1–10.2), all of §9                               | 4 days       | 1.5 wks          |
+| **5. Lead capture**        | `submitLead()` + App Check + rate limit, TCPA consent (§10.3), instant notify                                 | 3 days       | 1 wk             |
+|                            | ⏸ **v0 — show it to 5–10 agents** (ask about §10.7)                                                           | **~3.5 wks** | **~8 wks**       |
+| **6. Listings**            | Listing CRUD, carousel, detail pages, structured data                                                         | 1 wk         | 2.5 wks          |
+| **7. Fair Housing linter** | Term list, inline warnings, explanations (§10.2)                                                              | 2 days       | 0.5 wk           |
+| **8. Leads inbox**         | Table, status, CSV export                                                                                     | 3 days       | 1 wk             |
+| **9. Templates 2–5**       | Additional templates + accent sets, template switcher (§8.2)                                                  | 1 wk         | 2.5 wks          |
+| **10. Analytics**          | `/api/track`, counter aggregation, simple dashboard                                                           | 3 days       | 1 wk             |
+| **11. vCard + QR**         | Contact download, QR generation                                                                               | 1–2 days     | 0.5 wk           |
+| **12. A11y pass**          | WCAG 2.1 AA audit + fixes (§10.4)                                                                             | 3 days       | 1 wk             |
+|                            | **v1 — MVP**                                                                                                  | **~8 wks**   | **~17 wks**      |
+| **13. Billing**            | Stripe Checkout + portal, plan gating                                                                         | 4 days       | 1.5 wks          |
+| **14. Hardening**          | Privacy policy, export/delete, legal pages, backups, perf budget                                              | 4 days       | 1.5 wks          |
+|                            | **v2 — revenue**                                                                                              | **~9.5 wks** | **~20 wks**      |
 
-Where you *do* want a Function, install an Extension rather than authoring one:
+Where you _do_ want a Function, install an Extension rather than authoring one:
 `storage-resize-images` (you'll need it), `firestore-send-email` (only if you hit
 dropped notifications), `firestore-stripe-payments` (evaluate at v2 — don't
 pre-commit).
@@ -559,12 +578,12 @@ Your original list — auth, links, personalization, picture — is the Linktree
 floor. Gaps by impact:
 
 **The single most important thing: lead capture with instant notification.** It's the
-only item that changes the unit of value from *a page* to *a pipeline*. Listings
+only item that changes the unit of value from _a page_ to _a pipeline_. Listings
 without capture just route visitors to Zillow — a prettier referral into someone
 else's lead gen. Analytics measures leads; no leads, nothing to measure. And it isn't
 "add a contact form" — it's **speed-to-lead**. In US real estate the agent who responds
 first usually wins the client, which is why they pay for lead products at all. The
-notification path *is* the feature; a lead sitting unseen for six hours is worth
+notification path _is_ the feature; a lead sitting unseen for six hours is worth
 roughly nothing. That's why §4's retry caveat matters more than it looks.
 
 **Then, in order:**
@@ -598,22 +617,23 @@ faster?** Most feature ideas fail it — a decent signal about ordering.
 
 ## 13. Risks
 
-| Risk | Mitigation |
-|---|---|
-| **Building 8 weeks of features nobody wants** | The v0 checkpoint in §11. Non-negotiable. |
-| **Ugly v0 produces false-negative feedback** | One excellent template before the editor (§8.1). You cannot learn about demand through a bad first impression. |
-| **Agents publish ugly pages that damage your brand** | Templates + curated accents, never free-form color (§8.2). |
-| **Scope creep — no teammate to push back** | No new features until 10 agents are actively using it. Write it down. |
-| **Support burden** | Every free user is unpaid support you answer personally. Small free tier or paid-only trial. This is why custom domains are deferred. |
-| **Compliance mistake harms an agent's license** | §10 defaults non-disableable; ToS puts responsibility on the licensee; attorney review before launch. |
-| **ADA claim against generated pages** | Fix once in the template, inherited everywhere (§10.4). Structural advantage — use it. |
-| **Context loss between sessions** | `PLAN.md` + `CLAUDE.md` + decisions in-repo. |
-| **Lead spam floods agent inboxes** | App Check + reCAPTCHA + rate limit, day one. |
-| **Firestore read costs** | ISR + compiled single-doc page — reads scale with publishes, not visitors. |
-| **Linktree ships real estate templates** | They won't ship §10. Compliance + lead routing is the moat, not the link list. |
-| **Agents expect you to outrank Zillow** | Set expectations at sale time (§9 caveat). Overpromising SEO is the fastest route to churn. |
+| Risk                                                 | Mitigation                                                                                                                            |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **Building 8 weeks of features nobody wants**        | The v0 checkpoint in §11. Non-negotiable.                                                                                             |
+| **Ugly v0 produces false-negative feedback**         | One excellent template before the editor (§8.1). You cannot learn about demand through a bad first impression.                        |
+| **Agents publish ugly pages that damage your brand** | Templates + curated accents, never free-form color (§8.2).                                                                            |
+| **Scope creep — no teammate to push back**           | No new features until 10 agents are actively using it. Write it down.                                                                 |
+| **Support burden**                                   | Every free user is unpaid support you answer personally. Small free tier or paid-only trial. This is why custom domains are deferred. |
+| **Compliance mistake harms an agent's license**      | §10 defaults non-disableable; ToS puts responsibility on the licensee; attorney review before launch.                                 |
+| **ADA claim against generated pages**                | Fix once in the template, inherited everywhere (§10.4). Structural advantage — use it.                                                |
+| **Context loss between sessions**                    | `PLAN.md` + `CLAUDE.md` + decisions in-repo.                                                                                          |
+| **Lead spam floods agent inboxes**                   | App Check + reCAPTCHA + rate limit, day one.                                                                                          |
+| **Firestore read costs**                             | ISR + compiled single-doc page — reads scale with publishes, not visitors.                                                            |
+| **Linktree ships real estate templates**             | They won't ship §10. Compliance + lead routing is the moat, not the link list.                                                        |
+| **Agents expect you to outrank Zillow**              | Set expectations at sale time (§9 caveat). Overpromising SEO is the fastest route to churn.                                           |
 
 **Still open:**
+
 1. **Full-time or nights?** Picks your column in §11.
 2. **Which state or metro first?** Starting concentrated makes §10.1 much easier to get
    right and gives you a referral network among agents who know each other.
