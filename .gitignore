@@ -37,6 +37,14 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Claude Code local/session state — not shared project config
+.claude/settings.local.json
+.claude/*.lock
+
+# python bytecode cache (e.g. from the ui-ux-pro-max skill scripts)
+__pycache__/
+*.pyc
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
