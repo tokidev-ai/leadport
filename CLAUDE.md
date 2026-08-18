@@ -5,7 +5,7 @@ and [ISSUES.md](ISSUES.md) for the issue backlog (mirrored on
 [GitHub](https://github.com/tokidev-ai/leadport/issues), milestone `v0`).
 
 This is a solo project — one developer + Claude, no other reviewer. These rules exist
-*because* there's no second human in the loop; they're the substitute for code review.
+_because_ there's no second human in the loop; they're the substitute for code review.
 
 ---
 
@@ -23,6 +23,9 @@ human directs otherwise. For each issue:
    human explicitly confirms this issue is good.
 4. If the human requests changes, make them and return to step 3. Do not move on with
    unresolved feedback.
+5. Once validated: commit and push per §2, then **close the corresponding GitHub
+   issue** — comment on it confirming the AC were met (reference the commit) and
+   close it. Only move to the next issue after the current one is closed.
 
 Never batch multiple issues into one implementation pass and present them together —
 the human validates one issue at a time, so implement one at a time. If an issue turns
@@ -37,18 +40,18 @@ silently expanding scope.
   "no objection so far."
 - One issue → one commit (or a small tightly-scoped set of commits if the human asks
   for that split). Commit message should name the issue id (`LP-07: add Sentry error
-  tracking`).
+tracking`).
 - Push straight to `main` is fine for this project **once validated** — no PR
   workflow required unless the human asks for one later.
 - If asked to implement several issues in a row, still gate each one individually:
-  implement → stop → validate → commit/push → next. Don't queue up unpushed commits
-  across multiple issues.
+  implement → stop → validate → commit/push → close issue (§1.5) → next. Don't queue
+  up unpushed commits or open issues across multiple issues.
 
 ## 3. Never commit secrets
 
 - Never commit API keys, tokens, service account JSON, `.env` files, or any
   credential — Firebase, Stripe, Sentry, Vercel, or otherwise.
-- `.env.example` may list variable *names* with placeholder values, never real ones.
+- `.env.example` may list variable _names_ with placeholder values, never real ones.
 - Firebase Admin SDK service account keys stay out of the repo entirely — read from
   environment variables / the deploy platform's secret store.
 - Before every commit, check `git status` and `git diff` for anything that looks like
