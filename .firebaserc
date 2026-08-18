@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "leadport-dev",
+    "dev": "leadport-dev",
+    "prod": "leadport-prod"
+  }
+}

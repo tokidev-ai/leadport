@@ -30,6 +30,12 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# firebase emulator suite
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.firebase/
+
 # env files — never commit real secrets, see CLAUDE.md §3
 .env*
 !.env.example

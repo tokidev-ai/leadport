@@ -1,0 +1,11 @@
+rules_version = '2';
+
+// Placeholder — deny everything. Replaced with the real rules in LP-04
+// (PLAN.md §6: writes scoped to users/{uid}/*, size-capped, image-only).
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
