@@ -1,9 +1,82 @@
 rules_version = '2';
 
-// Placeholder — deny everything. Replaced with the real rules in LP-04
-// (PLAN.md §6). Deliberately closed by default rather than open.
+// PLAN.md §6. Deny-by-default: every path not explicitly matched below falls
+// through to the catch-all at the bottom.
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Own account doc. Bootstrap (LP-10) and any future field changes (e.g.
+    // `plan`, `stripeCustomerId`) go through the Admin SDK only — those
+    // fields must never be client-writable, or a user could grant
+    // themselves a paid plan by editing their own doc.
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // Slug reservation. Existence must be publicly readable (the live
+    // availability check in the editor, and slugs map 1:1 to public pages).
+    // Claiming is a `create` on a not-yet-existing doc — Firestore only
+    // permits one first-write per document, which combined with `update:
+    // false` is what makes a claim final (LP-11's transaction is an
+    // additional client-side guard on top of this, not a substitute).
+    //
+    // NOTE: PLAN.md §6 doesn't give an explicit rule for `slugs` — this
+    // implements LP-11's "claimed via Firestore transaction" description as
+    // a client-owned write. If slug claiming ends up going through a server
+    // action instead, this should tighten to `allow write: if false`.
+    match /slugs/{slug} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.ownerUid == request.auth.uid
+                    && request.resource.data.keys().hasOnly(["profileId", "ownerUid", "reservedAt"]);
+      allow update: if false;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.ownerUid;
+    }
+
+    // Draft profile — owner-only. Split from the read/update/delete branch
+    // because `resource.data` doesn't exist yet on create; checking it
+    // there would make every create fail closed. (PLAN.md §6's example
+    // rule has this bug — `resource.data.ownerUid` alone never permits
+    // creation of a new profile.)
+    match /profiles/{profileId} {
+      allow read, update, delete: if request.auth != null
+                                   && request.auth.uid == resource.data.ownerUid;
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.ownerUid;
+
+      match /blocks/{blockId} {
+        allow read, write: if request.auth != null
+                            && get(/databases/$(database)/documents/profiles/$(profileId)).data.ownerUid
+                               == request.auth.uid;
+      }
+    }
+
+    // Compiled public page. Written only by publish() via the Admin SDK.
+    match /publishedPages/{slug} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Leads contain names, phone numbers, and TCPA consent records.
+    // Owner-read only; NO client write path at all, including the owner —
+    // submitLead() validates, rate-limits, and checks App Check before
+    // ever touching Firestore, none of which a direct client write could
+    // guarantee.
+    match /leads/{leadId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.ownerUid;
+      allow write: if false;
+    }
+
+    // Daily counters, written via FieldValue.increment() from /api/track
+    // (Admin SDK). Owner can read their own stats.
+    match /stats/{profileId}/daily/{day} {
+      allow read: if request.auth != null
+                  && get(/databases/$(database)/documents/profiles/$(profileId)).data.ownerUid
+                     == request.auth.uid;
+      allow write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
