@@ -19,33 +19,46 @@ human directs otherwise. For each issue:
 2. Run whatever verification applies (typecheck, lint, tests, rules tests, a manual
    check in the browser/emulator) and report the result.
 3. **Stop. Report what was done, against the AC checklist, and wait for the human to
-   validate it.** Do not start the next issue, and do not commit or push, until the
+   validate it.** Do not start the next issue, and nothing lands on `main`, until the
    human explicitly confirms this issue is good.
 4. If the human requests changes, make them and return to step 3. Do not move on with
    unresolved feedback.
-5. Once validated: commit and push per §2, then **close the corresponding GitHub
-   issue** — comment on it confirming the AC were met (reference the commit) and
-   close it. Only move to the next issue after the current one is closed.
+5. Once validated: land it per §2 — branch, PR, CI, **a separate explicit human
+   confirmation to merge** — then **close the corresponding GitHub issue**: comment
+   on it confirming the AC were met (reference the commit/PR) and close it. Only move
+   to the next issue after the current one is closed.
 
 Never batch multiple issues into one implementation pass and present them together —
 the human validates one issue at a time, so implement one at a time. If an issue turns
 out to need work that clearly belongs to a different issue, say so and ask rather than
 silently expanding scope.
 
-## 2. Commit and push only after human validation
+## 2. Commit and land only after human validation
 
-- **No commit, and no push to `main`, until the human has validated the current
-  issue.** Validation is an explicit signal from the human in chat (e.g. "looks
-  good", "approved", "ship it") — not silence, not moving on to a new topic, not
-  "no objection so far."
+- **No commit, and nothing lands on `main`, until the human has validated the
+  current issue.** Validation is an explicit signal from the human in chat (e.g.
+  "looks good", "approved", "ship it") — not silence, not moving on to a new topic,
+  not "no objection so far."
 - One issue → one commit (or a small tightly-scoped set of commits if the human asks
   for that split). Commit message should name the issue id (`LP-07: add Sentry error
 tracking`).
-- Push straight to `main` is fine for this project **once validated** — no PR
-  workflow required unless the human asks for one later.
+- **PR-based workflow, as of LP-05.** `main` requires a pull request with CI green
+  (`checks` + `rules-tests`) before merge — direct pushes to `main` are blocked by
+  branch protection. This applies to every change, mine included. Once validated:
+  1. Create a branch for the issue and commit the work there.
+  2. Push the branch and open a PR against `main`.
+  3. Wait for CI to finish; review the actual run (not just "should pass") — read the
+     job logs if anything looks off, don't assume green from habit.
+  4. **Merging is its own gate, separate from CI passing.** CI green is necessary but
+     not sufficient — report the CI result and explicitly ask the human to confirm
+     the merge. Do not merge on CI-green alone, and do not merge on the same
+     "looks good" that validated the implementation; get a distinct go-ahead for the
+     merge itself.
+  5. Merge only after that confirmation.
 - If asked to implement several issues in a row, still gate each one individually:
-  implement → stop → validate → commit/push → close issue (§1.5) → next. Don't queue
-  up unpushed commits or open issues across multiple issues.
+  implement → stop → validate → branch/PR → CI reviewed → merge confirmed → merge →
+  close issue (§1.5) → next. Don't queue up unmerged PRs or open issues across
+  multiple issues.
 
 ## 3. Never commit secrets
 
